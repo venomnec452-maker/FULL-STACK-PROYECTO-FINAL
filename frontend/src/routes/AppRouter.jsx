@@ -14,7 +14,7 @@ import { HelpCenterPage } from '../pages/HelpCenterPage';
 
 export const AppRouter = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
         {/* Ruta Pública de Login */}
         <Route path="/login" element={<LoginPage />} />

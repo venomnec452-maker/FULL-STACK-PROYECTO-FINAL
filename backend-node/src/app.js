@@ -28,10 +28,26 @@ const app = express();
 // 1. Seguridad: Cabeceras HTTP con Helmet
 app.use(helmet());
 
-// 2. Seguridad: CORS restrictivo
+// 2. Seguridad: CORS permisivo para desarrollo y controlado para producción
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:5173',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3001',
+  'http://127.0.0.1:5173',
+  ENV.CORS_ORIGIN,
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: ENV.CORS_ORIGIN,
+    origin: (origin, callback) => {
+      // Permitir peticiones sin origen (Postman, curl) o de cualquier puerto local en desarrollo
+      if (!origin || allowedOrigins.includes(origin) || /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error(`Bloqueado por política CORS: origen '${origin}' no autorizado`));
+    },
     credentials: true, // Permite intercambio de cookies HttpOnly con React
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Idempotency-Key', 'x-internal-api-key'],

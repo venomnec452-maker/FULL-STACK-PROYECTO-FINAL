@@ -73,3 +73,23 @@ export const verifyInternalApiKey = (req, res, next) => {
 
   next();
 };
+
+/**
+ * Middleware híbrido: Permite autenticación de usuario (JWT) O autenticación
+ * Máquina-a-Máquina mediante API Key interna (usado por el servicio Laravel).
+ */
+export const authenticateOrM2M = async (req, res, next) => {
+  const internalApiKey = req.headers['x-internal-api-key'];
+
+  if (internalApiKey && internalApiKey === ENV.INTERNAL_API_KEY) {
+    // Si viene autenticado por API Key interna, asignamos el usuario Administrador del sistema
+    const systemAdmin = await User.findOne({ role: 'admin' });
+    if (systemAdmin) {
+      req.user = systemAdmin;
+    }
+    return next();
+  }
+
+  // De lo contrario, procede con la autenticación estándar de usuario JWT
+  return authenticate(req, res, next);
+};

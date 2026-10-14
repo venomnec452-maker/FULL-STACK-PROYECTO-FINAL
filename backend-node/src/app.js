@@ -11,6 +11,11 @@ import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { successResponse } from './utils/apiResponse.js';
 
 import authRoutes from './routes/authRoutes.js';
+import categoryRoutes from './routes/categoryRoutes.js';
+import supplierRoutes from './routes/supplierRoutes.js';
+import productRoutes from './routes/productRoutes.js';
+import inventoryRoutes from './routes/inventoryRoutes.js';
+import reportRoutes from './routes/reportRoutes.js';
 
 const app = express();
 
@@ -74,8 +79,13 @@ app.get('/api/v1', (req, res) => {
   });
 });
 
-// Rutas de autenticación y sesiones
+// Rutas de la API v1
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/categories', categoryRoutes);
+app.use('/api/v1/suppliers', supplierRoutes);
+app.use('/api/v1/products', productRoutes);
+app.use('/api/v1/inventory', inventoryRoutes);
+app.use('/api/v1/reports', reportRoutes);
 
 // 8. Manejadores de rutas no encontradas y errores
 app.use(notFoundHandler);

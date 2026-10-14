@@ -50,7 +50,7 @@ Aplicar conocimientos de desarrollo Full Stack, programación JavaScript, diseñ
 
 ### Paso 1: Clonar y configurar variables de entorno
 ```powershell
-# Copiar plantilla de variables
+
 Copy-Item .env.example .env
 ```
 

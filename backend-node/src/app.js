@@ -4,6 +4,9 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import { ENV } from './config/env.js';
 import { errorHandler } from './middlewares/errorHandler.js';
@@ -16,6 +19,9 @@ import supplierRoutes from './routes/supplierRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import inventoryRoutes from './routes/inventoryRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -74,9 +80,55 @@ app.get('/api/v1', (req, res) => {
     message: 'StockMaster Core API RESTful v1',
     data: {
       documentation: '/api/v1/docs',
+      specification: '/api/v1/docs/spec',
       modules: ['auth', 'products', 'categories', 'suppliers', 'inventory', 'reports'],
     },
   });
+});
+
+// Endpoint para entregar el archivo OpenAPI YAML
+app.get('/api/v1/docs/spec', (req, res) => {
+  const specPath = path.resolve(__dirname, '../../docs/api-spec.yaml');
+  if (fs.existsSync(specPath)) {
+    res.setHeader('Content-Type', 'text/yaml; charset=utf-8');
+    return res.sendFile(specPath);
+  }
+  return res.status(404).json({ success: false, message: 'Especificación no encontrada en el servidor' });
+});
+
+// Interfaz interactiva de Swagger UI
+app.get('/api/v1/docs', (req, res) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net data:; img-src 'self' data: https:;"
+  );
+  res.send(`<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>StockMaster API - Documentación Swagger UI</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234F46E5'><path d='M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'/></svg>" />
+</head>
+<body style="margin: 0; background: #fafafa;">
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script>
+    window.onload = function() {
+      SwaggerUIBundle({
+        url: '/api/v1/docs/spec',
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIBundle.SwaggerUIStandalonePreset
+        ],
+        layout: "BaseLayout"
+      });
+    };
+  </script>
+</body>
+</html>`);
 });
 
 // Rutas de la API v1

@@ -1,0 +1,14 @@
+{
+  "name": "stockmaster-fullstack",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StockMaster Full Stack - Sistema de Gestión de Depósito e Inventario",
+  "scripts": {
+    "install:backend": "npm --prefix backend-node install",
+    "install:frontend": "npm --prefix frontend install",
+    "postinstall": "npm --prefix backend-node install",
+    "start": "npm --prefix backend-node start",
+    "test": "npm --prefix backend-node test",
+    "seed": "npm --prefix backend-node run seed"
+  }
+}

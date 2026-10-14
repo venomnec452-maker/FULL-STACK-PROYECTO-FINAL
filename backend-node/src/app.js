@@ -10,6 +10,8 @@ import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { successResponse } from './utils/apiResponse.js';
 
+import authRoutes from './routes/authRoutes.js';
+
 const app = express();
 
 // 1. Seguridad: Cabeceras HTTP con Helmet
@@ -61,7 +63,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// 7. Montaje de rutas base /api/v1 (en las siguientes fases conectaremos auth, products, etc.)
+// 7. Montaje de rutas base /api/v1
 app.get('/api/v1', (req, res) => {
   return successResponse(res, {
     message: 'StockMaster Core API RESTful v1',
@@ -71,6 +73,9 @@ app.get('/api/v1', (req, res) => {
     },
   });
 });
+
+// Rutas de autenticación y sesiones
+app.use('/api/v1/auth', authRoutes);
 
 // 8. Manejadores de rutas no encontradas y errores
 app.use(notFoundHandler);
